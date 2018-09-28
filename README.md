@@ -1,3 +1,11 @@
+# Environment Requirements
+
+Python2.7 + TensorFlow-gpu 1.4.0
+
+**Very Very Very important！！！！！！！！**
+
+-----
+
 # Efficient Neural Architecture Search via Parameter Sharing
 
 Authors' implementation of "Efficient Neural Architecture Search via Parameter Sharing" (2018) in TensorFlow.
