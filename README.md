@@ -6,6 +6,31 @@ Python2.7 + TensorFlow-gpu 1.4.0
 
 -----
 
+# Changes
+
+My own dataset actually is larger than cifar10 and mnist, because my image size is normally over 1000*500. If I scale the image, I can only set the set the image size 160\*160. Otherwise, it will raise `ValueError: GraphDef cannot be larger than 2GB`, which confused me for nearly 3 weeks.... so sad. But now, I've modified the original code to load my own dataset successfully. The following are the details:
+
+- modify the file: **data_utils.py**. There two ways of loading data. 
+  - Load data using `torchvision`. This method is a little time consuming, but you can try different image size easily and select a proper size.
+  - Only load data once, and then save the data to `pkl` file. 
+- The resaon why the code raise `ValueError: GraphDef cannot be larger than 2GB`, in my opinion, is that original code load the whole data for once. And the data will be transfered to `Tensor` or maybe `Constant`, which will take up lots of graph space. In order to solve this problem, I use tf.placeholder. 
+
+Many thanks to these websites:
+- ![Tensorflow: create minibatch from numpy array > 2 GB](https://stackoverflow.com/questions/49053569/tensorflow-create-minibatch-from-numpy-array-2-gb)
+- ![TensorFlow: does tf.train.batch automatically load the next batch when the batch has finished training?](https://stackoverflow.com/questions/41673889/tensorflow-does-tf-train-batch-automatically-load-the-next-batch-when-the-batch)
+
+I have to say, TensorFlow is really really hard to use especially for the new people, just like me. Although I've solved the problem of loading data, I still have the problem to modify the code to run on multi GPUs. So if you are also interested in or you are stuck in this problem, welcome to join me or pull your requests.
+
+# How to load your datasets
+
+There are several things you need to do:
+- Change the bash script for you own dataset. see `skin5_placeholder_micro_search.sh`.
+- change the imported module name.
+> (These files need to be modified: `main.py, micro_child.py, models.py, general_child.py`)
+
+![](https://ask.qcloudimg.com/draft/1215004/rdhgi8s3yg.png)
+- It's optional to change the image size in `data_utils.py`.
+
 # Efficient Neural Architecture Search via Parameter Sharing
 
 Authors' implementation of "Efficient Neural Architecture Search via Parameter Sharing" (2018) in TensorFlow.
