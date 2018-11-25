@@ -16,8 +16,8 @@ My own dataset actually is larger than cifar10 and mnist, because my image size 
 - The resaon why the code raise `ValueError: GraphDef cannot be larger than 2GB`, in my opinion, is that original code load the whole data for once. And the data will be transfered to `Tensor` or maybe `Constant`, which will take up lots of graph space. In order to solve this problem, I use tf.placeholder. 
 
 Many thanks to these websites:
-- ![Tensorflow: create minibatch from numpy array > 2 GB](https://stackoverflow.com/questions/49053569/tensorflow-create-minibatch-from-numpy-array-2-gb)
-- ![TensorFlow: does tf.train.batch automatically load the next batch when the batch has finished training?](https://stackoverflow.com/questions/41673889/tensorflow-does-tf-train-batch-automatically-load-the-next-batch-when-the-batch)
+- ![2GB problem](https://stackoverflow.com/questions/49053569/tensorflow-create-minibatch-from-numpy-array-2-gb)
+- ![tf.train.batch question](https://stackoverflow.com/questions/41673889/tensorflow-does-tf-train-batch-automatically-load-the-next-batch-when-the-batch)
 
 I have to say, TensorFlow is really really hard to use especially for the new people, just like me. Although I've solved the problem of loading data, I still have the problem to modify the code to run on multi GPUs. So if you are also interested in or you are stuck in this problem, welcome to join me or pull your requests.
 
