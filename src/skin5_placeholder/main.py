@@ -319,6 +319,8 @@ def train():
             sess.run(train_iterator.initializer, feed_dict=feed_dict('train'))
             sess.run(valid_iterator.initializer, feed_dict=feed_dict('valid'))
             sess.run(test_iterator.initializer, feed_dict=feed_dict('test'))
+
+            train_acc = 0.0
             while True:
                 #####################################
                 ######  calculate child ops  ########
@@ -332,7 +334,7 @@ def train():
                     child_ops["train_op"],
                 ]
                 loss, lr, gn, tr_acc, _ = sess.run(run_ops)
-                global_step = sess.run(child_ops["global_step"])
+                global_step = sess.run(child_ops["global_step"]) # start from 1
                 
                 if FLAGS.child_sync_replicas:
                     actual_step = global_step * FLAGS.num_aggregate
@@ -340,8 +342,16 @@ def train():
                     actual_step = global_step
 
                 # ops["num_train_batches"] stands for N steps/epoch, "epoch" stands for the current epoch
-                epoch = actual_step // ops["num_train_batches"] 
+                epoch = actual_step // ops["num_train_batches"] # start from 0
                 curr_time = time.time()
+
+                num_batches_for_one_epoch = shapes['train']//FLAGS.batch_size
+                train_acc += tr_acc
+
+                if actual_step % num_batches_for_one_epoch == 0:
+                    print("Epoch:{:<6d} train_acc:{}".format(epoch, train_acc/shapes['train']))
+                    train_acc = 0
+
                 if global_step % FLAGS.log_every == 0:
                     log_string = "Child: "
                     log_string += "epoch={:<6d}".format(epoch) # the number of current epoch
