@@ -47,7 +47,8 @@ class Model(object):
 
         self.cutout_size = cutout_size
         self.batch_size = batch_size
-        self.eval_batch_size = eval_batch_size
+        self.eval_batch_size = batch_size
+        # self.eval_batch_size = eval_batch_size
         self.clip_mode = clip_mode
         self.grad_bound = grad_bound
         self.l2_reg = l2_reg
@@ -77,6 +78,7 @@ class Model(object):
             self.x_train, self.y_train = datasets['train'][0], datasets['train'][1]
             self.lr_dec_every = lr_dec_every * self.num_train_batches
 
+            # todo: modify the parameters 
             def _pre_process(x):
                 # x = tf.pad(x, [[4, 4], [4, 4], [0, 0]])
                 # x = tf.random_crop(x, [160, 160, 3], seed=self.seed)
@@ -98,8 +100,8 @@ class Model(object):
 
                 return x
 
+            # self.x_train = tf.map_fn(_pre_process, self.x_train, back_prop=False)
             print('models train_preprocess...')
-            self.x_train = tf.map_fn(_pre_process, self.x_train, back_prop=False)
             print(self.x_train)
 
             # valid data
