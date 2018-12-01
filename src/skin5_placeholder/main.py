@@ -40,6 +40,7 @@ DEFINE_string("search_for", None, "Must be [macro|micro]")
 
 DEFINE_integer("batch_size", 32, "")
 
+DEFINE_integer("output_classes", 5, "")
 DEFINE_integer("num_epochs", 300, "")
 DEFINE_integer("child_lr_dec_every", 30, "")
 DEFINE_integer("child_num_layers", 5, "")
@@ -143,6 +144,7 @@ def get_ops(datasets, shapes):
         sync_replicas=FLAGS.child_sync_replicas,
         num_aggregate=FLAGS.child_num_aggregate,
         num_replicas=FLAGS.child_num_replicas,
+        output_classes=FLAGS.output_classes
     )
 
     if FLAGS.child_fixed_arc is None:

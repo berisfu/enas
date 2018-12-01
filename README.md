@@ -29,7 +29,7 @@ There are several things you need to do:
 > (These files need to be modified: `main.py, micro_child.py, models.py, general_child.py`)
 
 ![](https://ask.qcloudimg.com/draft/1215004/rdhgi8s3yg.png)
-- Please modify `self.classes` in **micro_child.py**, it means the number of classes.
+- Please modify `self.output_classes` in **micro_child.py**, it means the number of classes. You can also specify it in shell file.
 - It's optional to change the image size in `data_utils.py`.
 
 # Efficient Neural Architecture Search via Parameter Sharing

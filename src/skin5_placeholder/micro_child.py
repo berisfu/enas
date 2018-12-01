@@ -56,6 +56,7 @@ class MicroChild(Model):
                num_replicas=None,
                data_format="NCHW",
                name="child",
+               output_classes=5,
                **kwargs
                ):
 
@@ -99,7 +100,7 @@ class MicroChild(Model):
     self.num_layers = num_layers
     self.num_cells = num_cells
     self.fixed_arc = fixed_arc
-    self.classes = 5
+    self.output_classes = output_classes
 
     self.global_step = tf.Variable(
         0, dtype=tf.int32, trainable=False, name="global_step")
@@ -328,7 +329,7 @@ class MicroChild(Model):
               aux_logits = global_avg_pool(aux_logits,
                                            data_format=self.data_format)
               inp_c = aux_logits.get_shape()[1].value
-              w = create_weight("w", [inp_c, self.classes])
+              w = create_weight("w", [inp_c, self.output_classes])
               aux_logits = tf.matmul(aux_logits, w)
               self.aux_logits = aux_logits
 
@@ -346,7 +347,7 @@ class MicroChild(Model):
       # FC layer classification
       with tf.variable_scope("fc"):
         inp_c = self._get_C(x)
-        w = create_weight("w", [inp_c, self.classes])
+        w = create_weight("w", [inp_c, self.output_classes])
         x = tf.matmul(x, w)
     return x
 

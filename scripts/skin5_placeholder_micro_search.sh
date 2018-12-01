@@ -9,6 +9,7 @@ python2 src/skin5_placeholder/main.py \
   --data_path="data/skin5/" \
   --output_dir="outputs_skin5_placeholder_micro_search" \
   --batch_size=4 \
+  --output_classes=5 \
   --num_epochs=300 \
   --log_every=100 \
   --eval_every_epochs=1 \
