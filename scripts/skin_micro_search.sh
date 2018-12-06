@@ -2,30 +2,28 @@
 
 export PYTHONPATH="$(pwd)"
 
-python2 src/skin5_placeholder/main.py \
+python src/skin/main.py \
   --data_format="NCHW" \
   --search_for="micro" \
   --reset_output_dir \
-  --data_path="data/skin5/" \
-  --output_dir="outputs_skin5_placeholder_micro_search" \
-  --batch_size=4 \
+  --data_path="data/siw5/" \
+  --output_dir="outputs_siw5_micro_search" \
   --output_classes=5 \
-  --num_epochs=300 \
-  --log_every=100 \
+  --batch_size=8 \
+  --num_epochs=100 \
+  --log_every=250 \
   --eval_every_epochs=1 \
   --child_use_aux_heads=False \
   --child_num_layers=6 \
   --child_out_filters=20 \
   --child_l2_reg=1e-4 \
-  --child_lr_dec_every=20 \
   --child_num_branches=5 \
-  --child_num_cells=5 \
-  --child_keep_prob=0.90 \
+  --child_num_cells=6 \
+  --child_keep_prob=0.80 \
   --child_drop_path_keep_prob=0.60 \
-  --child_lr_cosine=False \
+  --child_lr=0.05 \
   --child_lr_max=0.05 \
   --child_lr_min=0.00005 \
-  --child_lr_dec_rate=0.9991 \
   --child_lr_T_0=10 \
   --child_lr_T_mul=2 \
   --controller_training \

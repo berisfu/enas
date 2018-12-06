@@ -8,14 +8,14 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from src.skin5_placeholder.models import Model
-from src.skin5_placeholder.image_ops import conv
-from src.skin5_placeholder.image_ops import fully_connected
-from src.skin5_placeholder.image_ops import batch_norm
-from src.skin5_placeholder.image_ops import batch_norm_with_mask
-from src.skin5_placeholder.image_ops import relu
-from src.skin5_placeholder.image_ops import max_pool
-from src.skin5_placeholder.image_ops import global_avg_pool
+from src.skin.models import Model
+from src.skin.image_ops import conv
+from src.skin.image_ops import fully_connected
+from src.skin.image_ops import batch_norm
+from src.skin.image_ops import batch_norm_with_mask
+from src.skin.image_ops import relu
+from src.skin.image_ops import max_pool
+from src.skin.image_ops import global_avg_pool
 
 from src.utils import count_model_params
 from src.utils import get_train_ops

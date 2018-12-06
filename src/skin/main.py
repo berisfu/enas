@@ -21,12 +21,12 @@ from src.utils import DEFINE_integer
 from src.utils import DEFINE_string
 from src.utils import print_user_flags
 
-from src.skin5_placeholder.data_utils import read_data
-from src.skin5_placeholder.general_controller import GeneralController
-from src.skin5_placeholder.general_child import GeneralChild
+from src.skin.data_utils import read_data
+from src.skin.general_controller import GeneralController
+from src.skin.general_child import GeneralChild
 
-from src.skin5_placeholder.micro_controller import MicroController
-from src.skin5_placeholder.micro_child import MicroChild
+from src.skin.micro_controller import MicroController
+from src.skin.micro_child import MicroChild
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -90,6 +90,7 @@ DEFINE_boolean("controller_search_whole_channels", False, "")
 DEFINE_boolean("controller_sync_replicas", False, "To sync or not to sync.")
 DEFINE_boolean("controller_training", True, "")
 DEFINE_boolean("controller_use_critic", False, "")
+DEFINE_boolean("controller_from_fixed", False, "") # search architecture starting from fixed architecture
 
 DEFINE_integer("log_every", 50, "How many steps to log")
 DEFINE_integer("eval_every_epochs", 1, "How many epochs to eval")
@@ -147,7 +148,10 @@ def get_ops(datasets, shapes):
         output_classes=FLAGS.output_classes
     )
 
-    if FLAGS.child_fixed_arc is None:
+    if (FLAGS.child_fixed_arc is None) or FLAGS.controller_from_fixed:
+        '''
+        if child architecture is not fixed or we want to search child architecture from a fixed arc, controller need to be trained.
+        '''
         controller_model = ControllerClass(
             search_for=FLAGS.search_for,
             search_whole_channels=FLAGS.controller_search_whole_channels,
