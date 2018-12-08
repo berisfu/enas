@@ -678,11 +678,8 @@ class MicroChild(Model):
 
     used = tf.add_n(used)  # Wise addition of all elements in "used"
     
-    '''
-    # Find the coordinates of the element equal to 0 in used, and return a few coordinates when there are several, 
-    the dimension of each coordinate is the same as the dimension of used
-    # Question: why do this?
-    '''
+    # Find the coordinates of the element equal to 0 in used, and return a few coordinates when there are several, the dimension of each coordinate is the same as the dimension of used Question: why do this?
+
     indices = tf.where(tf.equal(used, 0)) 
     indices = tf.to_int32(indices)
     indices = tf.reshape(indices, [-1])

@@ -14,7 +14,7 @@ def _read_data(data_path, train_files):
   """
   images, labels = [], []
   for file_name in train_files:
-    print file_name
+    print (file_name)
     full_name = os.path.join(data_path, file_name)
     with open(full_name) as finp:
       data = pickle.load(finp)
@@ -31,8 +31,8 @@ def _read_data(data_path, train_files):
 
 
 def read_data(data_path, num_valids=5000):
-  print "-" * 80
-  print "Reading data"
+  print ("-" * 80)
+  print ("Reading data")
 
   images, labels = {}, {}
 
@@ -59,13 +59,13 @@ def read_data(data_path, num_valids=5000):
 
   images["test"], labels["test"] = _read_data(data_path, test_file)
 
-  print "Prepropcess: [subtract mean], [divide std]"
+  print ("Prepropcess: [subtract mean], [divide std]")
   mean = np.mean(images["train"], axis=(0, 1, 2), keepdims=True)
   std = np.std(images["train"], axis=(0, 1, 2), keepdims=True)
 
-  print "mean: {}".format(np.reshape(mean * 255.0, [-1]))
-  print "std: {}".format(np.reshape(std * 255.0, [-1]))
-
+  print ("mean: {}".format(np.reshape(mean * 255.0, [-1])))
+  print ("std: {}".format(np.reshape(std * 255.0, [-1])))
+  
   images["train"] = (images["train"] - mean) / std
   if num_valids:
     images["valid"] = (images["valid"] - mean) / std
