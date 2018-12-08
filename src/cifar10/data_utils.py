@@ -1,6 +1,7 @@
 import os
 import sys
-import cPickle as pickle
+# import cPickle as pickle # for py2
+import pickle # for py3
 import numpy as np
 import tensorflow as tf
 
@@ -16,12 +17,20 @@ def _read_data(data_path, train_files):
   for file_name in train_files:
     print (file_name)
     full_name = os.path.join(data_path, file_name)
-    with open(full_name) as finp:
-      data = pickle.load(finp)
+    with open(full_name, 'rb') as finp: # for py3
+      u = pickle._Unpickler(finp)
+      u.encoding = 'latin1'
+      data = u.load()
       batch_images = data["data"].astype(np.float32) / 255.0
       batch_labels = np.array(data["labels"], dtype=np.int32)
       images.append(batch_images)
       labels.append(batch_labels)
+    # with open(full_name) as finp: # for py2
+    #   data = pickle.load(finp)
+    #   batch_images = data["data"].astype(np.float32) / 255.0
+    #   batch_labels = np.array(data["labels"], dtype=np.int32)
+    #   images.append(batch_images)
+    #   labels.append(batch_labels)
   images = np.concatenate(images, axis=0)
   labels = np.concatenate(labels, axis=0)
   images = np.reshape(images, [-1, 3, 32, 32])
