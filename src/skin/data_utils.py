@@ -20,12 +20,20 @@ def _read_cifar10_data(data_path, train_files):
   for file_name in train_files:
     print (file_name)
     full_name = os.path.join(data_path, file_name)
-    with open(full_name) as finp:
-      data = pickle.load(finp)
+    with open(full_name, 'rb') as finp: # for python3
+      u = pickle._Unpickler(finp)
+      u.encoding = 'latin1'
+      data = u.load()
       batch_images = data["data"].astype(np.float32) / 255.0
       batch_labels = np.array(data["labels"], dtype=np.int32)
       images.append(batch_images)
       labels.append(batch_labels)
+    # with open(full_name) as finp: # for python2
+    #   data = pickle.load(finp) 
+    #   batch_images = data["data"].astype(np.float32) / 255.0
+    #   batch_labels = np.array(data["labels"], dtype=np.int32)
+    #   images.append(batch_images)
+    #   labels.append(batch_labels)
   images = np.concatenate(images, axis=0)
   labels = np.concatenate(labels, axis=0)
   images = np.reshape(images, [-1, 3, 32, 32])
