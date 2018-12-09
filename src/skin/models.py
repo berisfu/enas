@@ -111,7 +111,7 @@ class Model(object):
             self.x_valid_rl, self.y_valid_rl = None, None
             if datasets["valid"] is not None:
                 self.x_valid, self.y_valid = datasets['valid'][0], datasets['valid'][1]
-                self.x_valid_rl, self.y_valid_rl = datasets['valid'][0], datasets['valid'][1]
+                self.x_valid_rl, self.y_valid_rl = tf.identity(self.x_valid), tf.identity(self.y_valid)
             #     if self.data_format == "NCHW":
             #         images["valid"] = tf.transpose(
             #             images["valid"], [0, 3, 1, 2])
