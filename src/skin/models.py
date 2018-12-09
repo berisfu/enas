@@ -67,6 +67,7 @@ class Model(object):
         self.global_step = None
         self.valid_acc = None
         self.test_acc = None
+        self.shapes = shapes
         print("Build data ops")
 
         with tf.device("/cpu:0"):
@@ -80,8 +81,9 @@ class Model(object):
 
             # todo: modify the parameters 
             def _pre_process(x):
-                # x = tf.pad(x, [[4, 4], [4, 4], [0, 0]])
-                # x = tf.random_crop(x, [160, 160, 3], seed=self.seed)
+                size = self.shapes['img_size']
+                x = tf.pad(x, [[4, 4], [4, 4], [0, 0]])
+                x = tf.random_crop(x, [size, size, 3], seed=self.seed)
                 x = tf.image.random_flip_left_right(x, seed=self.seed)
                 if self.cutout_size is not None:
                     mask = tf.ones(
@@ -92,7 +94,7 @@ class Model(object):
                                          [self.cutout_size + start[1], 32 - start[1]]])
                     mask = mask[self.cutout_size: self.cutout_size + 32,
                                 self.cutout_size: self.cutout_size + 32]
-                    mask = tf.reshape(mask, [32, 32, 1])
+                    mask = tf.reshape(mask, [size, size, 1])
                     mask = tf.tile(mask, [1, 1, 3])
                     x = tf.where(tf.equal(mask, 0), x=x, y=tf.zeros_like(x))
                 # if self.data_format == "NCHW":
@@ -100,14 +102,16 @@ class Model(object):
 
                 return x
 
-            # self.x_train = tf.map_fn(_pre_process, self.x_train, back_prop=False)
+            self.x_train = tf.map_fn(_pre_process, self.x_train, back_prop=False)
             print('models train_preprocess...')
             print(self.x_train)
 
             # valid data
             self.x_valid, self.y_valid = None, None
+            self.x_valid_rl, self.y_valid_rl = None, None
             if datasets["valid"] is not None:
                 self.x_valid, self.y_valid = datasets['valid'][0], datasets['valid'][1]
+                self.x_valid_rl, self.y_valid_rl = datasets['valid'][0], datasets['valid'][1]
             #     if self.data_format == "NCHW":
             #         images["valid"] = tf.transpose(
             #             images["valid"], [0, 3, 1, 2])

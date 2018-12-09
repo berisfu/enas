@@ -3,7 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import cPickle as pickle
+import pickle # for py3
+# import cPickle as pickle # for py2
 import shutil
 import sys
 import time

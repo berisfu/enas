@@ -264,6 +264,7 @@ def train():
         'train': train_num,
         'valid': valid_num,
         'test': test_num,
+        'img_size': images['train'].shape[2] 
     }
 
     g = tf.Graph()
