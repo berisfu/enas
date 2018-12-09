@@ -806,7 +806,7 @@ class MicroChild(Model):
       size = self.shapes['img_size']
       def _pre_process(x):
         x = tf.pad(x, [[4, 4], [4, 4], [0, 0]])
-        x = tf.random_crop(x, [size, size, 3], seed=self.seed)
+        x = tf.random_crop(x, [3, size, size], seed=self.seed)
         x = tf.image.random_flip_left_right(x, seed=self.seed)
         if self.data_format == "NCHW":
           x = tf.transpose(x, [2, 0, 1])
