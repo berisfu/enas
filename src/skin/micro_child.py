@@ -808,8 +808,8 @@ class MicroChild(Model):
         x = tf.pad(x, [[4, 4], [4, 4], [0, 0]])
         x = tf.random_crop(x, [3, size, size], seed=self.seed)
         x = tf.image.random_flip_left_right(x, seed=self.seed)
-        if self.data_format == "NCHW":
-          x = tf.transpose(x, [2, 0, 1])
+        # if self.data_format == "NCHW":
+        #   x = tf.transpose(x, [2, 0, 1])
         return x
         
       if shuffle:

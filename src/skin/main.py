@@ -41,6 +41,7 @@ DEFINE_string("search_for", None, "Must be [macro|micro]")
 DEFINE_integer("batch_size", 32, "")
 
 DEFINE_integer("output_classes", 5, "")
+DEFINE_integer("img_size", 224, "")
 DEFINE_integer("num_epochs", 300, "")
 DEFINE_integer("child_lr_dec_every", 30, "")
 DEFINE_integer("child_num_layers", 5, "")
@@ -246,13 +247,14 @@ def bd(x, y, batch_size=4, isTrain=False):
     return tf.data.Dataset.from_tensor_slices((x, y)).shuffle(10).batch(batch_size).repeat()
 
 def train():
-
     if FLAGS.child_fixed_arc is None:
-        images, labels = read_data(FLAGS.data_path)
+        images, labels = read_data(FLAGS.data_path, FLAGS.img_size)
     else:
-        images, labels = read_data(FLAGS.data_path, num_valids=0)
+        images, labels = read_data(FLAGS.data_path, FLAGS.img_size, num_valids=0)
     # images, labels = generate_data()
 
+    images_valid_rl = np.copy(images['valid'])
+    labels_valid_rl = np.copy(labels['valid'])
     if FLAGS.data_format == 'NCHW':
         for key in images:
             images[key] = np.transpose(images[key], [0, 3, 1, 2])
@@ -260,6 +262,7 @@ def train():
     train_num = images['train'].shape[0]
     valid_num = images['valid'].shape[0]
     test_num = images['test'].shape[0]
+    
     shapes = {
         'train': train_num,
         'valid': valid_num,
@@ -276,19 +279,24 @@ def train():
             y_valid = tf.placeholder(labels['valid'].dtype, labels['valid'].shape, 'y_valid')
             x_test = tf.placeholder(images['test'].dtype, images['test'].shape, 'x_test')
             y_test = tf.placeholder(labels['test'].dtype, labels['test'].shape, 'y_test')
-
+            x_valid_rl = tf.placeholder(images['valid'].dtype, images['valid'].shape, 'x_valid_rl')
+            y_valid_rl = tf.placeholder(labels['valid'].dtype, labels['valid'].shape, 'y_valid_rl')
+            
         datasets = {}
         train_dataset = bd(x_train, y_train, batch_size=FLAGS.batch_size, isTrain=True)
         valid_dataset = bd(x_valid, y_valid, batch_size=FLAGS.batch_size, isTrain=False)
+        valid_rl_dataset = bd(x_valid_rl, y_valid_rl, batch_size=FLAGS.batch_size, isTrain=False)
         test_dataset = bd(x_test, y_test, batch_size=FLAGS.batch_size, isTrain=False)
 
         train_iterator = train_dataset.make_initializable_iterator()
         valid_iterator = valid_dataset.make_initializable_iterator()
+        valid_rl_iterator = valid_rl_dataset.make_initializable_iterator()
         test_iterator = test_dataset.make_initializable_iterator()
 
         datasets['train'] = train_iterator.get_next() # return x_train_batch, y_train_batch
         datasets['valid'] = valid_iterator.get_next()
         datasets['test']  = test_iterator.get_next()
+        datasets['valid_rl']  = valid_rl_iterator.get_next()
 
         def feed_dict(flag='train'):
             if flag == 'train':
@@ -297,6 +305,8 @@ def train():
                 return {x_valid: images['valid'], y_valid: labels['valid']}
             elif flag == 'test':
                 return {x_test: images['test'], y_test: labels['test']}
+            elif flag == 'valid_rl':
+                return {x_valid_rl: images_valid_rl, y_valid_rl: labels_valid_rl}
 
         ops = get_ops(datasets, shapes)
         child_ops = ops["child"]
@@ -326,6 +336,7 @@ def train():
             sess.run(train_iterator.initializer, feed_dict=feed_dict('train'))
             sess.run(valid_iterator.initializer, feed_dict=feed_dict('valid'))
             sess.run(test_iterator.initializer, feed_dict=feed_dict('test'))
+            sess.run(valid_rl_iterator.initializer, feed_dict=feed_dict('valid_rl'))
 
             train_acc = 0.0
             while True:

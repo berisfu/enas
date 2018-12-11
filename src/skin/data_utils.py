@@ -42,16 +42,15 @@ def _read_cifar10_data(data_path, train_files):
   return images, labels
 
 
-def load_data(path, data_types, flag):
+def load_data(path, img_size, data_types, flag):
     '''
     Reads folder image format data.
     '''
-    scale_size = 224
-    size = 224
+    
     data_transforms = {
         'train': transforms.Compose([
-            transforms.Resize(scale_size),
-            transforms.CenterCrop(size),
+            transforms.Resize(img_size),
+            transforms.CenterCrop(img_size),
             transforms.RandomVerticalFlip(),
             transforms.RandomHorizontalFlip(),
             transforms.RandomRotation(10),
@@ -60,14 +59,14 @@ def load_data(path, data_types, flag):
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
         'valid': transforms.Compose([
-            transforms.Resize(scale_size),
-            transforms.CenterCrop(size),
+            transforms.Resize(img_size),
+            transforms.CenterCrop(img_size),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
         'test': transforms.Compose([
-            transforms.Resize(scale_size),
-            transforms.CenterCrop(size),
+            transforms.Resize(img_size),
+            transforms.CenterCrop(img_size),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
@@ -101,17 +100,16 @@ def load_data(path, data_types, flag):
             # save to pkl file for next time to load data
             imgs_and_labels = (imgs[dt], labels[dt])
 
-            with open(path+"{}_skin_size_{}.pkl".format(dt,size), 'wb') as f:
+            with open(path+"{}_skin_size_{}.pkl".format(dt,img_size), 'wb') as f:
                 pickle.dump(imgs_and_labels, f, protocol=2)
         print('{}: imgs:{}, labels:{} costs {} seconds'.format(dt, imgs[dt].shape, labels[dt].shape, time.time()-start))
     return imgs, labels
 
 
-def read_data(data_path, num_valids=5000):
+def read_data(data_path, img_size, num_valids=5000):
     data_types = ['train', 'valid', 'test']
     print("-" * 80)
     print("Reading data")
-    size = 224
 
     if 'cifar10' in data_path:
         flag = 3
@@ -120,19 +118,19 @@ def read_data(data_path, num_valids=5000):
         # flag = 1 # read pkl files
     if flag == 0:
         print('Loading data from imgs ...')
-        return load_data(data_path, data_types, flag)
+        return load_data(data_path, img_size, data_types, flag)
     elif flag == 1:
-        if 'train_skin_size_{}.pkl'.format(size) not in os.listdir(data_path):
+        if 'train_skin_size_{}.pkl'.format(img_size) not in os.listdir(data_path):
             # if *.pkl files not created
             print('First save imgs to pkl files, then load data ...')
-            return load_data(data_path, data_types, flag)
+            return load_data(data_path, img_size, data_types, flag)
         else:
             # if *.pkl files already exist
             print('Loading data from pkl files...')
             imgs,labels = {}, {}
             for dt in data_types:
                 start = time.time()
-                with open(data_path + "{}_skin_size_{}.pkl".format(dt,size), 'rb') as f:
+                with open(data_path + "{}_skin_size_{}.pkl".format(dt,img_size), 'rb') as f:
                     imgs[dt], labels[dt] = pickle.load(f)
                     print('{} images.shape:{}, labels.shape:{} costs {} seconds'.format(dt,imgs[dt].shape, labels[dt].shape, time.time()-start))
             return imgs, labels
