@@ -106,7 +106,7 @@ def load_data(path, img_size, data_types, flag):
     return imgs, labels
 
 
-def read_data(data_path, img_size, num_valids=5000):
+def read_data(data_path, img_size=224, num_valids=5000):
     data_types = ['train', 'valid', 'test']
     print("-" * 80)
     print("Reading data")
