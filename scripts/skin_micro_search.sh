@@ -6,9 +6,10 @@ python src/skin/main.py \
   --data_format="NCHW" \
   --search_for="micro" \
   --reset_output_dir \
-  --data_path="data/siw5/" \
-  --output_dir="outputs_siw5_micro_search" \
+  --data_path="data/skin5/" \
+  --output_dir="./outputs/outputs_skin5_micro_search" \
   --output_classes=5 \
+  --img_size=224 \
   --batch_size=8 \
   --num_epochs=100 \
   --log_every=250 \

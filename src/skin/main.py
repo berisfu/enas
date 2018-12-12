@@ -213,6 +213,10 @@ def get_ops(datasets, shapes):
         "train_acc": child_model.train_acc,
         "optimizer": child_model.optimizer,
         "num_train_batches": child_model.num_train_batches,
+        'train': (child_model.x_train, child_model.y_train),
+        'valid': (child_model.x_valid, child_model.y_valid),
+        'test': (child_model.x_test, child_model.y_test),
+        'valid_rl': (child_model.x_valid_rl, child_model.y_valid_rl)
     }
 
     ops = {
@@ -229,7 +233,7 @@ def get_ops(datasets, shapes):
 def generate_data():
     # this function is just for debugging
     images, labels = {}, {}
-    size = 100
+    size = 16
     num1 = 10
     num2 = 10
     for key in ['train', 'valid', 'test']:
@@ -244,20 +248,24 @@ def generate_data():
 
 def bd(x, y, batch_size=4, isTrain=False):
     # build_dataset
-    return tf.data.Dataset.from_tensor_slices((x, y)).shuffle(10).batch(batch_size).repeat()
+    if isTrain:
+        return tf.data.Dataset.from_tensor_slices((x, y)).shuffle(10).batch(batch_size).repeat()
+    else:
+        return tf.data.Dataset.from_tensor_slices((x, y)).batch(batch_size).repeat()
 
 def train():
     if FLAGS.child_fixed_arc is None:
         images, labels = read_data(FLAGS.data_path, FLAGS.img_size)
     else:
         images, labels = read_data(FLAGS.data_path, FLAGS.img_size, num_valids=0)
-    # images, labels = generate_data()
+    # images, labels = generate_data()  # debug
 
-    images_valid_rl = np.copy(images['valid'])
-    labels_valid_rl = np.copy(labels['valid'])
     if FLAGS.data_format == 'NCHW':
         for key in images:
             images[key] = np.transpose(images[key], [0, 3, 1, 2])
+
+    images_valid_rl = np.copy(images['valid'])
+    labels_valid_rl = np.copy(labels['valid'])
 
     train_num = images['train'].shape[0]
     valid_num = images['valid'].shape[0]
@@ -285,7 +293,7 @@ def train():
         datasets = {}
         train_dataset = bd(x_train, y_train, batch_size=FLAGS.batch_size, isTrain=True)
         valid_dataset = bd(x_valid, y_valid, batch_size=FLAGS.batch_size, isTrain=False)
-        valid_rl_dataset = bd(x_valid_rl, y_valid_rl, batch_size=FLAGS.batch_size, isTrain=False)
+        valid_rl_dataset = bd(x_valid_rl, y_valid_rl, batch_size=FLAGS.batch_size, isTrain=True)
         test_dataset = bd(x_test, y_test, batch_size=FLAGS.batch_size, isTrain=False)
 
         train_iterator = train_dataset.make_initializable_iterator()
@@ -350,7 +358,9 @@ def train():
                     child_ops["grad_norm"],
                     child_ops["train_acc"],
                     child_ops["train_op"],
+                    # child_ops["train"]  # debug
                 ]
+                # loss, lr, gn, tr_acc, _, train_data = sess.run(run_ops)  # debug
                 loss, lr, gn, tr_acc, _ = sess.run(run_ops)
                 global_step = sess.run(child_ops["global_step"]) # start from 1
                 
@@ -359,7 +369,8 @@ def train():
                 else:
                     actual_step = global_step
 
-                # ops["num_train_batches"] stands for N steps/epoch, "epoch" stands for the current epoch
+                # ops["num_train_batches"] stands for N steps/epoch, 
+                # "epoch" stands for the current epoch
                 epoch = actual_step // ops["num_train_batches"] # start from 0
                 curr_time = time.time()
 
@@ -391,8 +402,8 @@ def train():
                     if (FLAGS.controller_training and
                             epoch % FLAGS.controller_train_every == 0):
                         print("Epoch {}: Training controller".format(epoch))
-                        for ct_step in range(FLAGS.controller_train_steps *
-                                             FLAGS.controller_num_aggregate):
+                        # print("Total ct_step:{}".format(FLAGS.controller_train_steps * FLAGS.controller_num_aggregate)) # debug
+                        for ct_step in range(FLAGS.controller_train_steps * FLAGS.controller_num_aggregate):
                             run_ops = [
                                 controller_ops["loss"],
                                 controller_ops["entropy"],
@@ -402,13 +413,16 @@ def train():
                                 controller_ops["baseline"],
                                 controller_ops["skip_rate"],
                                 controller_ops["train_op"],
+                                # child_ops["valid_rl"]  # debug
                             ]
-                            
+
+                            # loss, entropy, lr, gn, val_acc, bl, skip, _, valid_rl = sess.run(run_ops)  # debug
                             loss, entropy, lr, gn, val_acc, bl, skip, _ = sess.run(run_ops)
                             controller_step = sess.run(
                                 controller_ops["train_step"])
                 
                             if ct_step % FLAGS.log_every == 0:
+                                # print("ct_step:{} log_every:{}".format(ct_step, FLAGS.log_every))  # debug
                                 curr_time = time.time()
                                 log_string = "Controller: "
                                 log_string += "ctrl_step={:<6d}".format(

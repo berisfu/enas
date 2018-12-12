@@ -131,7 +131,7 @@ class Model(object):
                 (self.num_test_examples + self.eval_batch_size - 1)
                 // self.eval_batch_size)
             print('models test_preprocess...')
-
+            
     def eval_once(self, sess, eval_set, feed_dict=None, verbose=False):
         """Expects self.acc and self.global_step to be defined.
 
@@ -151,17 +151,21 @@ class Model(object):
             num_examples = self.num_valid_examples
             num_batches = self.num_valid_batches
             acc_op = self.valid_acc
+            # data_op = (self.x_valid, self.y_valid)  # debug
         elif eval_set == "test":
             assert self.test_acc is not None
             num_examples = self.num_test_examples
             num_batches = self.num_test_batches
             acc_op = self.test_acc
+            # data_op = (self.x_test, self.y_test)  # debug
         else:
             raise NotImplementedError("Unknown eval_set '{}'".format(eval_set))
 
+        # ops = [acc_op, data_op]  # debug
         total_acc = 0
         total_exp = 0
         for batch_id in range(num_batches):
+            # acc, data = sess.run(ops, feed_dict=feed_dict)  # debug
             acc = sess.run(acc_op, feed_dict=feed_dict)
             total_acc += acc
             total_exp += self.eval_batch_size
@@ -169,12 +173,12 @@ class Model(object):
                 sys.stdout.write(
                     "\r{:<5d}/{:>5d}".format(total_acc, total_exp))
         if verbose:
-            print( "")
+            print("")
         print("{}_accuracy: {:<6.4f}".format(
             eval_set, float(total_acc) / total_exp))
 
     def _build_train(self):
-        print( "Build train graph")
+        print("Build train graph")
         logits = self._model(self.x_train, True)
         log_probs = tf.nn.sparse_softmax_cross_entropy_with_logits(
             logits=logits, labels=self.y_train)

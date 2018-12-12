@@ -12,6 +12,7 @@ python src/skin/main.py \
   --data_path="data/skin5" \
   --output_dir="outputs_skin5_micro_final" \
   --output_classes=5 \
+  --img_size=224 \
   --batch_size=2 \
   --num_epochs=100 \
   --log_every=200 \
