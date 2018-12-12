@@ -81,22 +81,22 @@ class Model(object):
 
             # todo: modify the parameters 
             def _pre_process(x):
-                size = self.shapes['img_size']
+                img_size = self.shapes['img_size']
                 x = tf.pad(x, [[4, 4], [4, 4], [0, 0]])
-                x = tf.random_crop(x, [3, size, size], seed=self.seed)
+                x = tf.random_crop(x, [3, img_size, img_size], seed=self.seed)
                 x = tf.image.random_flip_left_right(x, seed=self.seed)
-                # if self.cutout_size is not None:
-                #     mask = tf.ones(
-                #         [self.cutout_size, self.cutout_size], dtype=tf.int32)
-                #     start = tf.random_uniform(
-                #         [2], minval=0, maxval=32, dtype=tf.int32)
-                #     mask = tf.pad(mask, [[self.cutout_size + start[0], 32 - start[0]],
-                #                          [self.cutout_size + start[1], 32 - start[1]]])
-                #     mask = mask[self.cutout_size: self.cutout_size + 32,
-                #                 self.cutout_size: self.cutout_size + 32]
-                #     mask = tf.reshape(mask, [size, size, 1])
-                #     mask = tf.tile(mask, [1, 1, 3])
-                #     x = tf.where(tf.equal(mask, 0), x=x, y=tf.zeros_like(x))
+                if self.cutout_size is not None:
+                    mask = tf.ones(
+                        [self.cutout_size, self.cutout_size], dtype=tf.int32)
+                    start = tf.random_uniform(
+                        [2], minval=0, maxval=img_size, dtype=tf.int32)
+                    mask = tf.pad(mask, [[self.cutout_size + start[0], img_size - start[0]],
+                                         [self.cutout_size + start[1], img_size - start[1]]])
+                    mask = mask[self.cutout_size: self.cutout_size + img_size,
+                                self.cutout_size: self.cutout_size + img_size]
+                    mask = tf.reshape(mask, [img_size, img_size, 1])
+                    mask = tf.tile(mask, [1, 1, 3])
+                    x = tf.where(tf.equal(mask, 0), x=x, y=tf.zeros_like(x))
                 # if self.data_format == "NCHW":
                 #     x = tf.transpose(x, [2, 0, 1])
 

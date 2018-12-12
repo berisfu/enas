@@ -116,6 +116,7 @@ def read_data(data_path, img_size=224, num_valids=5000):
     else:
         flag = 0 # read img files
         # flag = 1 # read pkl files
+        
     if flag == 0:
         print('Loading data from imgs ...')
         return load_data(data_path, img_size, data_types, flag)
