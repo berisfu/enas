@@ -161,7 +161,7 @@ class MicroController(Controller):
           logits = self.tanh_constant * tf.tanh(logits)
         index = tf.multinomial(logits, 1)
         index = tf.to_int32(index)
-        index = tf.reshape(index, [1])
+        index = tf.reshape(index, [1]) 
         arc_seq = arc_seq.write(start_id + 2 * i, index)
         curr_log_prob = tf.nn.sparse_softmax_cross_entropy_with_logits(
           logits=logits, labels=index)
